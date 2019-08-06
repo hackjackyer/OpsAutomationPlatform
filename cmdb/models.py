@@ -67,8 +67,8 @@ class Asset(models.Model):
     cabinet_num = models.CharField('机柜号', max_length=30, null=True, blank=True)
     cabinet_order = models.CharField('机柜中序号', max_length=30, null=True, blank=True)
 
-    idc = models.ForeignKey('IDC', verbose_name='IDC机房', null=True, blank=True, default=None)
-    business_unit = models.ForeignKey('BusinessUnit', verbose_name='属于的业务线', null=True, blank=True, default=None)
+    idc = models.ForeignKey('IDC', on_delete=models.PROTECT, verbose_name='IDC机房', null=True, blank=True, default=None)
+    business_unit = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT, verbose_name='属于的业务线', null=True, blank=True, default=None)
 
     latest_date = models.DateField(verbose_name="最后更新时间", null=True, blank=True)
     create_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
@@ -84,7 +84,7 @@ class Server(models.Model):
     """
     服务器信息
     """
-    asset = models.OneToOneField('Asset')
+    asset = models.OneToOneField('Asset', on_delete=models.PROTECT)
 
     hostname = models.CharField(max_length=128, unique=True)
     sn = models.CharField('主板SN号', max_length=64, db_index=True, null=True, blank=True)
@@ -110,7 +110,7 @@ class Server(models.Model):
 
 
 class NetworkDevice(models.Model):
-    asset = models.OneToOneField('Asset')
+    asset = models.OneToOneField('Asset', on_delete=models.PROTECT)
     management_ip = models.CharField('管理IP', max_length=64, blank=True, null=True)
     vlan_ip = models.CharField('VlanIP', max_length=64, blank=True, null=True)
     intranet_ip = models.CharField('内网IP', max_length=128, blank=True, null=True)
@@ -132,7 +132,7 @@ class Disk(models.Model):
     model = models.CharField('磁盘型号', max_length=128)
     capacity = models.FloatField('磁盘容量GB')
     pd_type = models.CharField('磁盘类型', max_length=64)
-    server_obj = models.ForeignKey('Server',related_name='disk')
+    server_obj = models.ForeignKey('Server', on_delete=models.PROTECT, related_name='disk')
 
     class Meta:
         verbose_name_plural = "硬盘表"
@@ -150,7 +150,7 @@ class NIC(models.Model):
     netmask = models.CharField(max_length=64)
     ipaddrs = models.CharField('ip地址', max_length=256)
     up = models.BooleanField(default=False)
-    server_obj = models.ForeignKey('Server',related_name='nic')
+    server_obj = models.ForeignKey('Server', on_delete=models.PROTECT, related_name='nic')
 
 
     class Meta:
@@ -171,7 +171,7 @@ class Memory(models.Model):
     sn = models.CharField('内存SN号', max_length=64, null=True, blank=True)
     speed = models.CharField('速度', max_length=16, null=True, blank=True)
 
-    server_obj = models.ForeignKey('Server',related_name='memory')
+    server_obj = models.ForeignKey('Server', on_delete=models.PROTECT, related_name='memory')
 
 
     class Meta:
@@ -185,7 +185,7 @@ class AssetRecord(models.Model):
     """
     资产变更记录,creator为空时，表示是资产汇报的数据。
     """
-    asset_obj = models.ForeignKey('Asset', related_name='ar')
+    asset_obj = models.ForeignKey('Asset', on_delete=models.PROTECT, related_name='ar')
     content = models.TextField(null=True, blank=True)
     creator = models.CharField(verbose_name="用户ID", max_length=64, null=True, blank=True)  # 添加数据的用户ID
     create_at = models.DateTimeField(auto_now_add=True)
@@ -201,7 +201,7 @@ class ErrorLog(models.Model):
     """
     错误日志,如：agent采集数据错误 或 运行错误
     """
-    asset_obj = models.ForeignKey('Asset', null=True, blank=True)
+    asset_obj = models.ForeignKey('Asset', on_delete=models.PROTECT, null=True, blank=True)
     title = models.CharField(max_length=16)
     content = models.TextField()
     create_at = models.DateTimeField(auto_now_add=True)
